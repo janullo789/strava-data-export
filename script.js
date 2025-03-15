@@ -1,6 +1,6 @@
 const CLIENT_ID = "136103";
 const REDIRECT_URI = "https://janullo789.github.io/strava-data-export/";
-const STRAVA_AUTH_URL = `https://www.strava.com/oauth/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${REDIRECT_URI}&scope=read_all`;
+const STRAVA_AUTH_URL = `https://www.strava.com/oauth/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${REDIRECT_URI}&scope=read,activity:read_all`;
 const BACKEND_URL = "https://strav-auth-backend.janullo789.workers.dev";
 
 document.getElementById("connect-strava").addEventListener("click", () => {
@@ -19,7 +19,7 @@ async function fetchAllActivities(accessToken) {
 
         let activities = await response.json();
         if (activities.length === 0) break;
-        if (page > 3) break;
+        if (page > 2) break;
 
         allActivities = allActivities.concat(activities);
         page++;
