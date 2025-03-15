@@ -19,7 +19,7 @@ async function fetchAllActivities(accessToken) {
 
         let activities = await response.json();
         if (activities.length === 0) break;
-        if (pages > 3) break;
+        if (page > 3) break;
 
         allActivities = allActivities.concat(activities);
         page++;
