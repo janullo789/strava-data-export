@@ -33,7 +33,11 @@ async function fetchStravaData(code) {
         let response = await fetch(`${BACKEND_URL}/?code=${code}`);
         let tokenData = await response.json();
 
-        if (!tokenData.access_token) throw new Error("Failed to get access token");
+        console.log("✅ Backend response:", tokenData); // DEBUG: Sprawdź, co zwraca backend
+
+        if (!tokenData.access_token) {
+            throw new Error("❌ Failed to get access token");
+        }
 
         let activities = await fetchAllActivities(tokenData.access_token);
 
@@ -48,9 +52,11 @@ async function fetchStravaData(code) {
         downloadBtn.download = "strava_activities.json";
         downloadBtn.style.display = "block";
     } catch (error) {
+        console.error("❌ Error:", error);
         document.getElementById("status").innerText = "Error fetching data.";
     }
 }
+
 
 const urlParams = new URLSearchParams(window.location.search);
 const code = urlParams.get("code");
