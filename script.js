@@ -46,23 +46,24 @@ async function fetchStravaData(code) {
             document.getElementById("status").innerText = "No public activities found.";
             return;
         }
-        console.log(activities);
+        console.log("✅ Activities:", activities); // Debugowanie
 
         // 🔹 Konwersja do JSON
         let jsonData = JSON.stringify(activities, null, 2);
         let blob = new Blob([jsonData], { type: "application/json" });
         let url = URL.createObjectURL(blob);
 
-        // 🔹 Ustawienia przycisku pobierania
+        // 🔹 Przycisk pobierania
         let downloadBtn = document.getElementById("download-json");
         downloadBtn.href = url;
         downloadBtn.download = "strava_activities.json";
         downloadBtn.style.display = "block";
+        downloadBtn.innerText = "Download JSON";
 
-        // 🔹 Obsługa kliknięcia (jeśli nie działa automatycznie)
-        downloadBtn.onclick = () => {
+        // 🔹 Obsługa kliknięcia
+        downloadBtn.addEventListener("click", () => {
             setTimeout(() => URL.revokeObjectURL(url), 1000);
-        };
+        });
 
         document.getElementById("status").innerText = "Data ready for download!";
     } catch (error) {
@@ -70,8 +71,6 @@ async function fetchStravaData(code) {
         document.getElementById("status").innerText = "Error fetching data.";
     }
 }
-
-
 
 const urlParams = new URLSearchParams(window.location.search);
 const code = urlParams.get("code");
