@@ -22,6 +22,7 @@ async function fetchAllActivities(accessToken) {
 
         allActivities = allActivities.concat(activities);
         page++;
+        break;
     }
     return allActivities;
 }
