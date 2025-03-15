@@ -34,7 +34,7 @@ async function fetchStravaData(code) {
         let response = await fetch(`${BACKEND_URL}/?code=${code}`);
         let tokenData = await response.json();
 
-        console.log("✅ Backend response:", tokenData); // DEBUG: Sprawdź, co zwraca backend
+        console.log("✅ Backend response:", tokenData); // DEBUG
 
         if (!tokenData.access_token) {
             throw new Error("❌ Failed to get access token");
@@ -46,17 +46,31 @@ async function fetchStravaData(code) {
             document.getElementById("status").innerText = "No public activities found.";
             return;
         }
+        console.log(activities);
 
-        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(activities, null, 2));
+        // 🔹 Konwersja do JSON
+        let jsonData = JSON.stringify(activities, null, 2);
+        let blob = new Blob([jsonData], { type: "application/json" });
+        let url = URL.createObjectURL(blob);
+
+        // 🔹 Ustawienia przycisku pobierania
         let downloadBtn = document.getElementById("download-json");
-        downloadBtn.href = dataStr;
+        downloadBtn.href = url;
         downloadBtn.download = "strava_activities.json";
         downloadBtn.style.display = "block";
+
+        // 🔹 Obsługa kliknięcia (jeśli nie działa automatycznie)
+        downloadBtn.onclick = () => {
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        };
+
+        document.getElementById("status").innerText = "Data ready for download!";
     } catch (error) {
         console.error("❌ Error:", error);
         document.getElementById("status").innerText = "Error fetching data.";
     }
 }
+
 
 
 const urlParams = new URLSearchParams(window.location.search);
