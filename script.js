@@ -1,12 +1,10 @@
-const CLIENT_ID = "136103";
-const REDIRECT_URI = "https://janullo789.github.io/strava-data-export/";
-const STRAVA_AUTH_URL = `https://www.strava.com/oauth/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${REDIRECT_URI}&scope=read,activity:read_all`;
+const CLIENT_ID = "136103"; // ✅ Wstaw poprawny Client ID
+const REDIRECT_URI = "https://janullo789.github.io/strava-data-export/"; // ✅ Poprawny redirect URI
+const STRAVA_AUTH_URL = `https://www.strava.com/oauth/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=read,activity:read_all`;
 const BACKEND_URL = "https://strav-auth-backend.janullo789.workers.dev";
 
-// Obsługuje kliknięcie przycisku "Connect with Strava"
-document.getElementById("connect-strava").addEventListener("click", () => {
-    window.location.href = STRAVA_AUTH_URL;
-});
+// ✅ Poprawienie linku do Strava OAuth w HTML
+document.getElementById("connect-strava").href = STRAVA_AUTH_URL;
 
 async function fetchAllActivities(accessToken) {
     let allActivities = [];
@@ -44,7 +42,7 @@ async function fetchStravaData(code) {
         let activities = await fetchAllActivities(tokenData.access_token);
 
         if (!activities.length) {
-            document.getElementById("status").innerText = "Nie znaleziono publicznych aktywności.";
+            document.getElementById("status").innerText = "Nie znaleziono aktywności.";
             return;
         }
 
