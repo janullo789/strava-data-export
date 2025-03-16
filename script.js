@@ -3,6 +3,7 @@ const REDIRECT_URI = "https://janullo789.github.io/strava-data-export/";
 const STRAVA_AUTH_URL = `https://www.strava.com/oauth/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${REDIRECT_URI}&scope=read,activity:read_all`;
 const BACKEND_URL = "https://strav-auth-backend.janullo789.workers.dev";
 
+// Obsługuje kliknięcie przycisku "Connect with Strava"
 document.getElementById("connect-strava").addEventListener("click", () => {
     window.location.href = STRAVA_AUTH_URL;
 });
@@ -28,13 +29,13 @@ async function fetchAllActivities(accessToken) {
 }
 
 async function fetchStravaData(code) {
-    document.getElementById("status").innerText = "Fetching data from Strava...";
+    document.getElementById("status").innerText = "Pobieranie danych ze Strava...";
 
     try {
         let response = await fetch(`${BACKEND_URL}/?code=${code}`);
         let tokenData = await response.json();
 
-        console.log("✅ Backend response:", tokenData); // DEBUG
+        console.log("✅ Backend response:", tokenData);
 
         if (!tokenData.access_token) {
             throw new Error("❌ Failed to get access token");
@@ -43,32 +44,32 @@ async function fetchStravaData(code) {
         let activities = await fetchAllActivities(tokenData.access_token);
 
         if (!activities.length) {
-            document.getElementById("status").innerText = "No public activities found.";
+            document.getElementById("status").innerText = "Nie znaleziono publicznych aktywności.";
             return;
         }
-        console.log("✅ Activities:", activities); // Debugowanie
 
-        // 🔹 Konwersja do JSON
+        console.log("✅ Activities:", activities);
+
         let jsonData = JSON.stringify(activities, null, 2);
         let blob = new Blob([jsonData], { type: "application/json" });
         let url = URL.createObjectURL(blob);
 
-        // 🔹 Przycisk pobierania
         let downloadBtn = document.getElementById("download-json");
+
+        // ✅ Pokazuje przycisk dopiero, gdy dane są gotowe
         downloadBtn.href = url;
         downloadBtn.download = "strava_activities.json";
-        downloadBtn.style.display = "block";
-        downloadBtn.innerText = "Download JSON";
+        downloadBtn.style.display = "inline-block";
+        downloadBtn.innerText = "Pobierz JSON";
 
-        // 🔹 Obsługa kliknięcia
         downloadBtn.addEventListener("click", () => {
             setTimeout(() => URL.revokeObjectURL(url), 1000);
         });
 
-        document.getElementById("status").innerText = "Data ready for download!";
+        document.getElementById("status").innerText = "Dane gotowe do pobrania!";
     } catch (error) {
         console.error("❌ Error:", error);
-        document.getElementById("status").innerText = "Error fetching data.";
+        document.getElementById("status").innerText = "Błąd podczas pobierania danych.";
     }
 }
 

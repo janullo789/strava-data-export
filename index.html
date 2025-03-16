@@ -1,16 +1,68 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Strava Data Export</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 40px;
+            background-color: #f8f8f8;
+        }
+        h1 {
+            color: #ff5500;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        #download-json {
+            display: none; /* ✅ Ukryty przycisk na starcie */
+            padding: 10px;
+            background: #ff5500;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+        }
+        .powered-by {
+            margin-top: 30px;
+        }
+    </style>
 </head>
 <body>
-<h1>Export your Strava Activities</h1>
-<button id="connect-strava">Connect with Strava</button>
-<div id="status"></div>
-<a id="download-json" style="display:none; padding: 10px; background: #ff5500; color: white; text-decoration: none; border-radius: 5px;">Download JSON</a>
+
+<div class="container">
+    <h1>Eksportuj swoje aktywności Strava</h1>
+
+    <!-- Przycisk "Połącz ze Strava" jako obrazek -->
+    <a href="https://www.strava.com/oauth/authorize?client_id=YOUR_CLIENT_ID&response_type=code&redirect_uri=YOUR_REDIRECT_URI&scope=read_all">
+        <img src="btn_strava_connect_with_orange.svg" alt="Połącz ze Strava">
+    </a>
+
+    <div id="status"></div>
+
+    <!-- Przycisk pobierania JSON (Ukryty domyślnie) -->
+    <a id="download-json">Pobierz JSON</a>
+
+    <!-- Logo "Powered by Strava" -->
+    <div class="powered-by">
+        <img src="api_logo_pwrdBy_strava_horiz_black.svg" alt="Powered by Strava">
+    </div>
+</div>
 
 <script src="script.js"></script>
+
 </body>
 </html>
