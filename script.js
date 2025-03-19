@@ -39,7 +39,7 @@ async function fetchAllActivities(accessToken) {
 
         fetched = fetched.concat(data);
         // For testing or limited usage, break after 2 pages:
-        if (page >= 2) break;
+        // if (page >= 2) break;
         page++;
     }
     return fetched;
