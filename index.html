@@ -1,67 +1,68 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Strava Data Export</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 40px;
-            background-color: #f8f8f8;
-        }
-        h1 {
-            color: #ff5500;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        }
-        #download-json {
-            display: none;
-            padding: 10px;
-            background: #ff5500;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-top: 10px;
-        }
-        img {
-            max-width: 100%;
-            height: auto;
-            margin-top: 20px;
-        }
-        .powered-by {
-            margin-top: 30px;
-        }
-    </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Data Export</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
 </head>
 <body>
 
 <div class="container">
-    <h1>Eksportuj swoje aktywności Strava</h1>
+    <div class="logo-container">
+        <img src="logo.png" alt="App Logo" class="app-logo">
+    </div>
 
-    <!-- Przycisk "Połącz ze Strava" jako obrazek -->
-    <a id="connect-strava">
-        <img src="btn_strava_connect_with_white.png" alt="Połącz ze Strava">
+    <h1>Strava Data Export</h1>
+
+    <div class="app-description">
+        <p>
+            <strong>Data Export</strong> is a non-commercial web application designed to facilitate the export of Strava activity data in JSON format.
+            This tool was created for students and researchers at <strong>AGH University of Science and Technology</strong>,
+            allowing them to download their activity records for analysis, study, and academic research.
+        </p>
+        <p>
+            This application <strong>does not store or process data on any external server</strong> — all data is retrieved in real-time directly from Strava
+            and made available for immediate download. The goal is to provide users with <strong>a simple and secure way to access their own activity history</strong>
+            while ensuring compliance with Strava's API guidelines.
+        </p>
+    </div>
+
+    <!-- Connect with Strava button -->
+    <a id="connect-strava" class="btn-strava">
+        <img src="btn_strava_connect_with_orange.svg" alt="Connect with Strava" />
     </a>
 
     <div id="status"></div>
 
-    <!-- Przycisk pobierania JSON -->
-    <a id="download-json">Pobierz JSON</a>
+    <!-- Activity list -->
+    <ul id="activity-list"></ul>
 
-    <!-- Logo "Powered by Strava" -->
-    <div class="powered-by">
-        <img src="api_logo_pwrdBy_strava_horiz_white.png" alt="Powered by Strava">
+    <!-- Pagination controls (hidden until data loads) -->
+    <div class="pagination" id="pagination-controls" style="display: none;">
+        <button id="prev-page" class="btn-page" disabled>← Prev</button>
+        <span id="page-info"></span>
+        <button id="next-page" class="btn-page" disabled>Next →</button>
     </div>
+
+    <!-- JSON download button (hidden until data is ready) -->
+    <a id="download-json" class="btn-download">Download JSON</a>
+
+    <!-- Powered by Strava logo -->
+    <div class="powered-by">
+        <img src="api_logo_pwrdBy_strava_horiz_black.svg" alt="Powered by Strava" />
+    </div>
+
+    <p class="disclaimer">
+        This application is <strong>not</strong> developed or sponsored by Strava.
+    </p>
+
+    <!-- Privacy Policy link -->
+    <a href="privacy.html" class="btn-privacy">Privacy Policy</a>
 </div>
 
+<!-- Main app logic -->
 <script src="script.js"></script>
 
 </body>

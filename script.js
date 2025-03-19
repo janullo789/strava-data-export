@@ -1,76 +1,138 @@
-const CLIENT_ID = "136103"; // ✅ Wstaw poprawny Client ID
-const REDIRECT_URI = "https://janullo789.github.io/strava-data-export/"; // ✅ Poprawny redirect URI
+/* Strava configuration */
+const CLIENT_ID = "136103";
+const REDIRECT_URI = "https://janullo789.github.io/strava-data-export/";
 const STRAVA_AUTH_URL = `https://www.strava.com/oauth/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=read,activity:read_all`;
 const BACKEND_URL = "https://strav-auth-backend.janullo789.workers.dev";
 
-// ✅ Poprawienie linku do Strava OAuth w HTML
-document.getElementById("connect-strava").href = STRAVA_AUTH_URL;
+/* DOM elements */
+const connectStravaBtn = document.getElementById("connect-strava");
+const statusElem = document.getElementById("status");
+const activityListElem = document.getElementById("activity-list");
+const paginationControls = document.getElementById("pagination-controls");
+const prevPageBtn = document.getElementById("prev-page");
+const nextPageBtn = document.getElementById("next-page");
+const pageInfoElem = document.getElementById("page-info");
+const downloadBtn = document.getElementById("download-json");
 
+/* Global variables */
+let allActivities = [];
+let currentPage = 1;
+let itemsPerPage = 20;
+
+/* Set Strava OAuth link */
+connectStravaBtn.href = STRAVA_AUTH_URL;
+
+/* Fetch activities from Strava API */
 async function fetchAllActivities(accessToken) {
-    let allActivities = [];
     let page = 1;
     let perPage = 200;
+    let fetched = [];
 
     while (true) {
-        let response = await fetch(`https://www.strava.com/api/v3/athlete/activities?per_page=${perPage}&page=${page}`, {
-            headers: { Authorization: `Bearer ${accessToken}` }
-        });
+        const response = await fetch(
+            `https://www.strava.com/api/v3/athlete/activities?per_page=${perPage}&page=${page}`,
+            { headers: { Authorization: `Bearer ${accessToken}` } }
+        );
 
-        let activities = await response.json();
-        if (activities.length === 0) break;
-        if (page > 2) break;
+        const data = await response.json();
+        if (data.length === 0) break;
 
-        allActivities = allActivities.concat(activities);
+        fetched = fetched.concat(data);
+        // For testing or limited usage, break after 2 pages:
+        if (page >= 2) break;
         page++;
     }
-    return allActivities;
+    return fetched;
 }
 
+/* Render a single page of activities */
+function renderPage(activities, pageNum) {
+    activityListElem.innerHTML = "";
+
+    const startIndex = (pageNum - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const pageItems = activities.slice(startIndex, endIndex);
+
+    pageItems.forEach(activity => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+      <span style="font-weight: 600; color: #ff5500;">
+        ${activity.name}
+      </span>
+      <a href="https://www.strava.com/activities/${activity.id}" target="_blank"
+         style="margin-left: 0.5rem; color: #ff5500; text-decoration: underline;">
+        (View on Strava)
+      </a>
+    `;
+        activityListElem.appendChild(li);
+    });
+
+    pageInfoElem.textContent = `Page ${pageNum} of ${Math.ceil(activities.length / itemsPerPage)}`;
+
+    prevPageBtn.disabled = (pageNum === 1);
+    nextPageBtn.disabled = (pageNum === Math.ceil(activities.length / itemsPerPage));
+}
+
+/* Main function: obtain token, fetch data, enable pagination */
 async function fetchStravaData(code) {
-    document.getElementById("status").innerText = "Pobieranie danych ze Strava...";
+    statusElem.innerText = "Fetching data from Strava...";
 
     try {
-        let response = await fetch(`${BACKEND_URL}/?code=${code}`);
-        let tokenData = await response.json();
+        const response = await fetch(`${BACKEND_URL}/?code=${code}`);
+        const tokenData = await response.json();
 
-        console.log("✅ Backend response:", tokenData);
+        if (!tokenData.access_token) throw new Error("No access token");
 
-        if (!tokenData.access_token) {
-            throw new Error("❌ Failed to get access token");
-        }
+        allActivities = await fetchAllActivities(tokenData.access_token);
 
-        let activities = await fetchAllActivities(tokenData.access_token);
-
-        if (!activities.length) {
-            document.getElementById("status").innerText = "Nie znaleziono aktywności.";
+        if (allActivities.length === 0) {
+            statusElem.innerText = "No activities found.";
             return;
         }
 
-        console.log("✅ Activities:", activities);
+        currentPage = 1;
+        renderPage(allActivities, currentPage);
 
-        let jsonData = JSON.stringify(activities, null, 2);
-        let blob = new Blob([jsonData], { type: "application/json" });
-        let url = URL.createObjectURL(blob);
+        // Show pagination
+        paginationControls.style.display = "flex";
 
-        let downloadBtn = document.getElementById("download-json");
+        // Generate JSON file
+        const jsonData = JSON.stringify(allActivities, null, 2);
+        const blob = new Blob([jsonData], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
 
-        // ✅ Pokazuje przycisk dopiero, gdy dane są gotowe
         downloadBtn.href = url;
         downloadBtn.download = "strava_activities.json";
         downloadBtn.style.display = "inline-block";
-        downloadBtn.innerText = "Pobierz JSON";
 
         downloadBtn.addEventListener("click", () => {
             setTimeout(() => URL.revokeObjectURL(url), 1000);
         });
 
-        document.getElementById("status").innerText = "Dane gotowe do pobrania!";
+        statusElem.innerText = "Data are ready! Browse pages or download JSON.";
     } catch (error) {
-        console.error("❌ Error:", error);
-        document.getElementById("status").innerText = "Błąd podczas pobierania danych.";
+        console.error(error);
+        statusElem.innerText = "Error while fetching data.";
     }
 }
 
+/* Pagination buttons */
+prevPageBtn.addEventListener("click", () => {
+    if (currentPage > 1) {
+        currentPage--;
+        renderPage(allActivities, currentPage);
+    }
+});
+
+nextPageBtn.addEventListener("click", () => {
+    const maxPage = Math.ceil(allActivities.length / itemsPerPage);
+    if (currentPage < maxPage) {
+        currentPage++;
+        renderPage(allActivities, currentPage);
+    }
+});
+
+/* If "code" param is in URL, start fetching data */
 const urlParams = new URLSearchParams(window.location.search);
 const code = urlParams.get("code");
 if (code) fetchStravaData(code);
