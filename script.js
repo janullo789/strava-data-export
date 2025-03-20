@@ -81,6 +81,8 @@ async function fetchStravaData(code) {
         const response = await fetch(`${BACKEND_URL}/?code=${code}`);
         const tokenData = await response.json();
 
+        console.log("Token Data:", tokenData);
+
         if (!tokenData.access_token) throw new Error("No access token");
 
         allActivities = await fetchAllActivities(tokenData.access_token);
